@@ -107,7 +107,7 @@
       "tasks": [
         {
           "task_number": 2,
-          "status": "not_started",
+          "status": "complete",
           "agent_assigned": "Architect Agent",
           "task_title": "Setup Drizzle and D1",
           "task_description": "Create schemas and generate migrations.",
@@ -117,7 +117,7 @@
             {
               "number": 2.1,
               "title": "Create Schemas",
-              "status": "not_started",
+              "status": "complete",
               "technical_requirements": ["Create transcripts.ts and logs.ts in src/backend/db/schemas/"],
               "success_criteria": ["Files exist with valid Drizzle SQLite syntax"]
             }
@@ -155,7 +155,7 @@
       "tasks": [
         {
           "task_number": 3,
-          "status": "not_started",
+          "status": "complete",
           "agent_assigned": "Architect Agent",
           "task_title": "Build OpenAPI Backend",
           "task_description": "Implement Hono API with Zod validation.",
@@ -165,7 +165,7 @@
             {
               "number": 3.1,
               "title": "Setup Hono Base",
-              "status": "not_started",
+              "status": "complete",
               "technical_requirements": ["Create src/backend/index.ts", "Export fetch handler"],
               "success_criteria": ["Valid entrypoint"]
             }
