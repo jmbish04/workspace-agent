@@ -2,6 +2,15 @@
 
 ## MANDATORY STANDARDS — READ BEFORE ANY WORK
 
+### 0. Secrets Management (CRITICAL)
+- ❌ Do NOT access secrets directly via `env.SECRET_NAME`.
+- ✅ **MUST** use the asynchronous `.get()` method: `await env.SECRET_NAME.get()`.
+- **Google Service Account Auth:** Because SA keys exceed Cloudflare Worker secret limits, the key is split into two parts. You MUST reconstruct it precisely:
+  ```typescript
+  const pt1 = await env.GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1.get();
+  const pt2 = await env.GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2.get();
+  const privateKey = pt1 + pt2;
+
 ### 1. Type Safety & Env Management
 - ALWAYS run `pnpm run types` (`npx wrangler types`) after ANY change to `wrangler.jsonc`.
 - The generated `worker-configuration.d.ts` is the SINGLE SOURCE OF TRUTH for the `Env` type.
@@ -47,5 +56,5 @@
 
 ### 9. Task Management
 - Follow `project_tasks.json` in exact sequential order.
-- Update statuses as you progress.
-- Run the required `cloudflare_docs_queries` before starting tasks.
+- **MANDATORY** -- Update statuses as you progress
+- **MANDATORY** -- Use your `cloudflare docs` mcp tool to query each task before starting tasks.
