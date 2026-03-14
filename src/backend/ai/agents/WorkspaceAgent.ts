@@ -57,7 +57,7 @@ Think step-by-step before executing destructive actions.`);
    * Sync transcripts to D1 for global querying
    * Called after each message exchange
    */
-  protected async afterChatMessage(message: any) {
+  protected async afterChatMessage(message: { role: string; content: string; tool_calls?: any }) {
     try {
       // Get the current transcript ID from state
       const transcriptId = await this.getState('transcriptId');
