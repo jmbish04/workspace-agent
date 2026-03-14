@@ -57,7 +57,7 @@ app.doc('/openapi.json', {
   },
   servers: [
     {
-      url: 'https://workspace-agent.hacolby.workers.dev',
+      url: c.env.APP_URL,
       description: 'Production server',
     },
   ],
