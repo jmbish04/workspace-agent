@@ -18,7 +18,7 @@ api.get('/api/health', (c) => {
 });
 
 // OpenAPI documentation
-api.doc('/openapi.json', {
+api.doc('/openapi.json', (c) => ({
   openapi: '3.1.0',
   info: {
     title: 'Workspace Agent API',
@@ -27,11 +27,11 @@ api.doc('/openapi.json', {
   },
   servers: [
     {
-      url: 'https://workspace-agent.hacolby.workers.dev',
+      url: c.env.APP_URL,
       description: 'Production server',
     },
   ],
-});
+}));
 
 // Swagger UI
 api.get('/swagger', swaggerUI({ url: '/openapi.json' }));
