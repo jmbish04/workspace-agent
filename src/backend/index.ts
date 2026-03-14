@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { swaggerUI } from '@hono/swagger-ui';
 import { cors } from 'hono/cors';
+import { WorkspaceAgent } from './ai/agents';
 
 /**
  * Main Hono application with OpenAPI support
@@ -27,6 +28,23 @@ app.get('/health', (c) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
   });
+});
+
+// WebSocket upgrade endpoint for WorkspaceAgent
+app.get('/api/agents/workspace/:sessionId', async (c) => {
+  const { sessionId } = c.req.param();
+
+  // Check if this is a WebSocket upgrade request
+  if (c.req.header('upgrade') !== 'websocket') {
+    return c.json({ error: 'Expected WebSocket upgrade' }, 400);
+  }
+
+  // Get the Durable Object stub
+  const id = c.env.WORKSPACE_AGENT.idFromName(sessionId);
+  const stub = c.env.WORKSPACE_AGENT.get(id);
+
+  // Forward the request to the Durable Object
+  return stub.fetch(c.req.raw);
 });
 
 // OpenAPI documentation configuration
@@ -56,3 +74,6 @@ export default {
     return app.fetch(request, env, ctx);
   },
 } satisfies ExportedHandler<Env>;
+
+// Export the WorkspaceAgent Durable Object
+export { WorkspaceAgent };

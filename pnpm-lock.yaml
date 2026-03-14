@@ -44,6 +44,9 @@ importers:
       agents:
         specifier: latest
         version: 0.7.6(@ai-sdk/react@3.0.118(react@19.2.4)(zod@4.3.6))(@cloudflare/ai-chat@0.1.8)(@cloudflare/workers-types@4.20260307.1)(ai@6.0.116(zod@4.3.6))(react@19.2.4)(zod@4.3.6)
+      ai:
+        specifier: ^6.0.116
+        version: 6.0.116(zod@4.3.6)
       astro:
         specifier: ^5.18.0
         version: 5.18.0(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.53.3)(typescript@5.9.3)(yaml@2.8.2)
