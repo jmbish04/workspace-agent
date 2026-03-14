@@ -5,7 +5,7 @@ I have received your idea for the **Workspace Agent**. This is a powerful concep
 Before generating the execution plan, I have consulted the Cloudflare NotebookLM documentation sources to verify the required patterns:
 
 1. **Cloudflare Agents SDK & `assistant-ui**`: Verified the `AIChatAgent` implementation, WebSocket routing, and `@cloudflare/ai-chat/react` hooks. We will use the Agent's internal SQLite for operational state and mirror transcripts to D1 for global dashboard querying.
-2. **AI Gateway Bindings**: Verified the `await env.AI.gateway('workspace-agent').getUrl('compat')` Universal/Compat endpoint patterns. We will configure the OpenAI compatibility layer so the agent can flexibly route to OpenAI, Anthropic, Gemini, or `workers-ai` models using standard OpenAI SDK shapes.
+2. **AI Gateway Bindings**: Verified the `${await env.AI.gateway('workspace-agent').getUrl('compat')}/chat/completions` Universal/Compat endpoint patterns. We will configure the OpenAI compatibility layer so the agent can flexibly route to OpenAI, Anthropic, Gemini, or `workers-ai` models using standard OpenAI SDK shapes.
 3. **Hono + Zod OpenAPI**: Verified `OpenAPIHono` setup for v3.1.0, ensuring every route has an `operationId` and the `servers` array points to `https://workspace-agent.hacolby.workers.dev`.
 4. **Worker Assets & Astro**: Verified the hybrid SSR/Static setup for serving the split-pane Astro/React frontend and the Hono backend from the same Worker.
 
@@ -315,7 +315,7 @@ Think step-by-step before executing destructive actions.
 The backend leverages Cloudflare AI Gateway's Universal Endpoint to provide maximum model flexibility using the standard OpenAI SDK client inside the Agent.
 
 ```typescript
-const gatewayBaseUrl = env.AI.gateway('workspace-agent').url('universal');
+const gatewayBaseUrl = `${await env.AI.gateway('workspace-agent').getUrl('compat')}/chat/completions;
 // Use this URL in the OpenAI/LangChain/Custom provider config, passing the model as:
 // 'openai/gpt-4o', 'anthropic/claude-3-5-sonnet-latest', or 'workers-ai/@cf/meta/llama-3.3-70b-instruct-fp8-fast'
 
