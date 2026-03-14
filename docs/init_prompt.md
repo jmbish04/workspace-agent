@@ -5,7 +5,7 @@ I have received your idea for the **Workspace Agent**. This is a powerful concep
 Before generating the execution plan, I have consulted the Cloudflare NotebookLM documentation sources to verify the required patterns:
 
 1. **Cloudflare Agents SDK & `assistant-ui**`: Verified the `AIChatAgent` implementation, WebSocket routing, and `@cloudflare/ai-chat/react` hooks. We will use the Agent's internal SQLite for operational state and mirror transcripts to D1 for global dashboard querying.
-2. **AI Gateway Bindings**: Verified the `env.AI.gateway('workspace-agent')` Universal/Compat endpoint patterns. We will configure the OpenAI compatibility layer so the agent can flexibly route to OpenAI, Anthropic, Gemini, or `workers-ai` models using standard OpenAI SDK shapes.
+2. **AI Gateway Bindings**: Verified the `await env.AI.gateway('workspace-agent').getUrl('compat')` Universal/Compat endpoint patterns. We will configure the OpenAI compatibility layer so the agent can flexibly route to OpenAI, Anthropic, Gemini, or `workers-ai` models using standard OpenAI SDK shapes.
 3. **Hono + Zod OpenAPI**: Verified `OpenAPIHono` setup for v3.1.0, ensuring every route has an `operationId` and the `servers` array points to `https://workspace-agent.hacolby.workers.dev`.
 4. **Worker Assets & Astro**: Verified the hybrid SSR/Static setup for serving the split-pane Astro/React frontend and the Hono backend from the same Worker.
 
@@ -838,7 +838,7 @@ Links: `[ Workspace | Docs | Health | OpenAPI JSON | Swagger UI ]`
 - NEVER use Vercel AI SDK (`ai`, `useChat`). Use `@cloudflare/ai-chat` and `agents`.
 - The Agent class must extend `AIChatAgent`.
 - **AI Gateway Universal Endpoint:** To dynamically support multiple models via OpenAI compat formatting, construct the base URL using:
-  `const baseUrl = env.AI.gateway('workspace-agent').url('universal');`
+  `const baseUrl = env.AI.gateway('workspace-agent').getUrl('compat');`
   Configure the underlying OpenAI/Langchain client inside the agent to use this `baseUrl`.
 - Tools MUST include full implementations for Google Docs, Sheets, Gmail, and Apps Script.
 - To fulfill the requirement of saving transcripts to D1, utilize the Agent's lifecycle hooks (e.g., `onChatMessage` or a scheduled alarm) to mirror the DO SQLite state to the D1 `transcripts` and `messages` tables.
