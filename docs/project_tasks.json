@@ -51,7 +51,7 @@
       "tasks": [
         {
           "task_number": 1,
-          "status": "not_started",
+          "status": "complete",
           "agent_assigned": "Architect Agent",
           "task_title": "Initialize Configs",
           "task_description": "Create wrangler.jsonc, tsconfig.json, and package.json.",
@@ -61,14 +61,14 @@
             {
               "number": 1.1,
               "title": "Setup package.json",
-              "status": "not_started",
+              "status": "complete",
               "technical_requirements": ["Use pnpm", "Install hono, @hono/zod-openapi, drizzle-orm"],
               "success_criteria": ["Dependencies installed"]
             },
             {
               "number": 1.2,
               "title": "Wrangler & Types",
-              "status": "not_started",
+              "status": "complete",
               "technical_requirements": ["Write wrangler.jsonc", "Run pnpm run types"],
               "success_criteria": ["worker-configuration.d.ts exists"]
             }
