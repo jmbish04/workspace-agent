@@ -20,7 +20,7 @@ export const messages = sqliteTable('messages', {
   transcriptId: text('transcript_id')
     .notNull()
     .references(() => transcripts.id, { onDelete: 'cascade' }),
-  role: text('role').notNull(), // 'user' | 'assistant' | 'system'
+  role: text('role', { enum: ['user', 'assistant', 'system'] }).notNull(),
   content: text('content').notNull(),
   toolCalls: text('tool_calls'), // JSON string of tool calls
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
