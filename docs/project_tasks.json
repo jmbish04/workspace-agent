@@ -1,0 +1,422 @@
+
+***
+
+# project_tasks.json
+
+```json
+{
+  "project_name": "workspace-agent",
+  "generated_date": "2026-03-13T17:39:00Z",
+  "total_phases": 8,
+  "phases": [
+    {
+      "phase_number": 1,
+      "phase_title": "Project Scaffolding",
+      "description": "Initialize Wrangler, Astro, Hono, and package configurations.",
+      "success_criteria": [
+        "wrangler.jsonc contains all required bindings",
+        "worker-configuration.d.ts generated successfully",
+        "Astro and Tailwind are configured for Worker Assets"
+      ],
+      "implementation_plan": {
+        "title": "Initialization",
+        "description": "Set up the repo with the required Cloudflare edge architecture.",
+        "architecture": {
+          "explanation": "Astro handles static assets; Hono handles API routes on the same worker.",
+          "mermaid_diagram": "graph TD; Astro-->Worker; Hono-->Worker;"
+        },
+        "proposed_changes": [
+          {
+            "category": "Configuration",
+            "files": [
+              {
+                "action": "MODIFY",
+                "file_path": "wrangler.jsonc",
+                "instructions": [
+                  "Set name to workspace-agent",
+                  "Configure ASSETS directory to ./dist",
+                  "Add D1 binding for DB",
+                  "Add DO binding for WORKSPACE_AGENT",
+                  "Add AI binding and AI_GATEWAY_NAME var"
+                ]
+              }
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [{"command": "pnpm run types", "expected_outcome": "Builds without errors"}],
+          "manual_verification": ["Check if worker-configuration.d.ts contains Env"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 1,
+          "status": "not_started",
+          "agent_assigned": "Architect Agent",
+          "task_title": "Initialize Configs",
+          "task_description": "Create wrangler.jsonc, tsconfig.json, and package.json.",
+          "task_dependencies": [],
+          "cloudflare_docs_queries": ["What is the correct wrangler.jsonc syntax for DO, D1, and Assets?"],
+          "steps": [
+            {
+              "number": 1.1,
+              "title": "Setup package.json",
+              "status": "not_started",
+              "technical_requirements": ["Use pnpm", "Install hono, @hono/zod-openapi, drizzle-orm"],
+              "success_criteria": ["Dependencies installed"]
+            },
+            {
+              "number": 1.2,
+              "title": "Wrangler & Types",
+              "status": "not_started",
+              "technical_requirements": ["Write wrangler.jsonc", "Run pnpm run types"],
+              "success_criteria": ["worker-configuration.d.ts exists"]
+            }
+          ],
+          "requirements": ["Use pnpm strictly"],
+          "success_criteria": ["Project compiles"]
+        }
+      ]
+    },
+    {
+      "phase_number": 2,
+      "phase_title": "Database Layer",
+      "description": "Configure D1 and Drizzle schemas for transcripts and logs.",
+      "success_criteria": ["Migrations generated", "Local DB migrated"],
+      "implementation_plan": {
+        "title": "D1 Setup",
+        "description": "Schema generation for chat history and logging.",
+        "architecture": {
+          "explanation": "D1 stores the global transcript index. DO SQLite stores immediate agent state.",
+          "mermaid_diagram": "graph TD; Agent-->DO_SQLite; Agent-->D1;"
+        },
+        "proposed_changes": [
+          {
+            "category": "Database",
+            "files": [
+              {"action": "NEW", "file_path": "src/backend/db/schemas/transcripts.ts", "instructions": ["Create transcripts and messages tables"]},
+              {"action": "NEW", "file_path": "src/backend/db/schemas/logs.ts", "instructions": ["Create logs table"]}
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [{"command": "pnpm run db:generate", "expected_outcome": "SQL files in drizzle/"}],
+          "manual_verification": ["Check drizzle output directory"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 2,
+          "status": "not_started",
+          "agent_assigned": "Architect Agent",
+          "task_title": "Setup Drizzle and D1",
+          "task_description": "Create schemas and generate migrations.",
+          "task_dependencies": ["Task 1"],
+          "cloudflare_docs_queries": ["Drizzle ORM D1 sqlite dialect configuration"],
+          "steps": [
+            {
+              "number": 2.1,
+              "title": "Create Schemas",
+              "status": "not_started",
+              "technical_requirements": ["Create transcripts.ts and logs.ts in src/backend/db/schemas/"],
+              "success_criteria": ["Files exist with valid Drizzle SQLite syntax"]
+            }
+          ],
+          "requirements": ["Use sqlite-core from drizzle-orm"],
+          "success_criteria": ["Migration succeeds"]
+        }
+      ]
+    },
+    {
+      "phase_number": 3,
+      "phase_title": "Core Backend",
+      "description": "Initialize Hono, Zod OpenAPI, and REST endpoints.",
+      "success_criteria": ["/openapi.json returns valid 3.1.0 spec", "/swagger loads"],
+      "implementation_plan": {
+        "title": "Hono App",
+        "description": "Setup OpenAPIHono and mount routes.",
+        "architecture": {
+          "explanation": "OpenAPIHono automatically derives paths, inputs, and schemas.",
+          "mermaid_diagram": "graph TD; Fetch-->OpenAPIHono; OpenAPIHono-->Routes;"
+        },
+        "proposed_changes": [
+          {
+            "category": "API",
+            "files": [
+              {"action": "NEW", "file_path": "src/backend/index.ts", "instructions": ["Init OpenAPIHono, set servers url to https://workspace-agent.hacolby.workers.dev, mount routes"]}
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [],
+          "manual_verification": ["Visit /swagger in browser and verify operationIds"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 3,
+          "status": "not_started",
+          "agent_assigned": "Architect Agent",
+          "task_title": "Build OpenAPI Backend",
+          "task_description": "Implement Hono API with Zod validation.",
+          "task_dependencies": ["Task 2"],
+          "cloudflare_docs_queries": ["Hono Zod OpenAPI setup for Cloudflare Workers"],
+          "steps": [
+            {
+              "number": 3.1,
+              "title": "Setup Hono Base",
+              "status": "not_started",
+              "technical_requirements": ["Create src/backend/index.ts", "Export fetch handler"],
+              "success_criteria": ["Valid entrypoint"]
+            }
+          ],
+          "requirements": ["Every method must have an operationId"],
+          "success_criteria": ["OpenAPI spec generated"]
+        }
+      ]
+    },
+    {
+      "phase_number": 4,
+      "phase_title": "AI Infrastructure",
+      "description": "Configure WorkspaceAgent, Google Workspace tools, and AI Gateway routing.",
+      "success_criteria": ["WorkspaceAgent DO is defined", "Tools can invoke Google APIs"],
+      "implementation_plan": {
+        "title": "Agent System",
+        "description": "Extend AIChatAgent, configure tools, and setup Universal AI Gateway endpoint.",
+        "architecture": {
+          "explanation": "Agent runs in DO, uses AI Gateway universal URL for OpenAI compat.",
+          "mermaid_diagram": "graph TD; Agent-->AIGateway; Agent-->GoogleAPIs;"
+        },
+        "proposed_changes": [
+          {
+            "category": "Agents",
+            "files": [
+              {"action": "NEW", "file_path": "src/backend/ai/agents/WorkspaceAgent.ts", "instructions": ["Implement WorkspaceAgent extending AIChatAgent", "Add Google tools"]}
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [],
+          "manual_verification": ["Verify agent builds and binds correctly"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 4,
+          "status": "not_started",
+          "agent_assigned": "AI/Agent Agent",
+          "task_title": "Build Workspace Agent",
+          "task_description": "Implement the DO class and Google Workspace tools.",
+          "task_dependencies": ["Task 3"],
+          "cloudflare_docs_queries": ["Cloudflare Agents SDK AIChatAgent", "AI Gateway Universal Endpoint URL format"],
+          "steps": [
+            {
+              "number": 4.1,
+              "title": "Create DO Class",
+              "status": "not_started",
+              "technical_requirements": ["Use @cloudflare/ai-chat", "Set up tool handlers for Docs/Sheets/AppsScript"],
+              "success_criteria": ["Class created and exported"]
+            }
+          ],
+          "requirements": ["Use standard OpenAI compat URL format via AI Gateway binding"],
+          "success_criteria": ["Agent responds to WS messages"]
+        }
+      ]
+    },
+    {
+      "phase_number": 5,
+      "phase_title": "Frontend",
+      "description": "Build the Astro UI with a split-pane layout and dark theme.",
+      "success_criteria": ["UI loads", "Split pane is interactive", "assistant-ui connects to Agent"],
+      "implementation_plan": {
+        "title": "Astro UI",
+        "description": "Landing, Docs, Health, and Chat workspace.",
+        "architecture": {
+          "explanation": "React islands handle assistant-ui and iframe updates.",
+          "mermaid_diagram": "graph LR; App-->Sidebar; App-->IframeViewer;"
+        },
+        "proposed_changes": [
+          {
+            "category": "Frontend",
+            "files": [
+              {"action": "NEW", "file_path": "src/frontend/pages/index.astro", "instructions": ["Split pane layout implementation"]},
+              {"action": "NEW", "file_path": "src/frontend/components/ChatSidebar.tsx", "instructions": ["assistant-ui Thread"]},
+              {"action": "NEW", "file_path": "src/frontend/components/DocumentViewer.tsx", "instructions": ["Iframe/Canvas renderer"]}
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [],
+          "manual_verification": ["Check that iframe updates when chat emits a document ID"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 5,
+          "status": "not_started",
+          "agent_assigned": "Frontend Agent",
+          "task_title": "Implement Workspace UI",
+          "task_description": "Build the split-pane Astro app with shadcn.",
+          "task_dependencies": ["Task 4"],
+          "cloudflare_docs_queries": ["Astro React islands Cloudflare pages deployment"],
+          "steps": [
+            {
+              "number": 5.1,
+              "title": "Shadcn Setup",
+              "status": "not_started",
+              "technical_requirements": ["Install resizable, card, etc.", "Force dark mode CSS"],
+              "success_criteria": ["Components installed"]
+            }
+          ],
+          "requirements": ["Navbar must link to /openapi.json and /swagger"],
+          "success_criteria": ["Frontend builds cleanly"]
+        }
+      ]
+    },
+    {
+      "phase_number": 6,
+      "phase_title": "Health System",
+      "description": "Implement the health dashboard and API.",
+      "success_criteria": ["/health UI shows real-time scans"],
+      "implementation_plan": {
+        "title": "Health Check",
+        "description": "System monitoring.",
+        "architecture": {
+          "explanation": "Checks DB, Agent DO, and Google Auth.",
+          "mermaid_diagram": ""
+        },
+        "proposed_changes": [
+          {
+            "category": "Monitoring",
+            "files": [
+              {"action": "NEW", "file_path": "src/frontend/pages/health.astro", "instructions": ["Health UI"]},
+              {"action": "NEW", "file_path": "src/backend/routes/health.ts", "instructions": ["Health API"]}
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [],
+          "manual_verification": ["Click Run Scan button on UI"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 6,
+          "status": "not_started",
+          "agent_assigned": "Architect Agent",
+          "task_title": "Health Endpoints",
+          "task_description": "Build health API and Astro UI.",
+          "task_dependencies": ["Task 5"],
+          "cloudflare_docs_queries": [],
+          "steps": [
+            {
+              "number": 6.1,
+              "title": "Health Dashboard",
+              "status": "not_started",
+              "technical_requirements": ["Create Astro page", "Implement real-time fetch logic"],
+              "success_criteria": ["UI renders statuses"]
+            }
+          ],
+          "requirements": ["Must use Zod OpenAPI for the health route"],
+          "success_criteria": ["Scans complete successfully"]
+        }
+      ]
+    },
+    {
+      "phase_number": 7,
+      "phase_title": "Integration & Polish",
+      "description": "Connect state between assistant-ui and the iframe viewer.",
+      "success_criteria": ["Agent creation of a doc updates the iframe src"],
+      "implementation_plan": {
+        "title": "State Sync",
+        "description": "Ensure UI reactivity based on agent tool calls.",
+        "architecture": {
+          "explanation": "React context or callbacks from useAgentChat update the iframe.",
+          "mermaid_diagram": ""
+        },
+        "proposed_changes": [
+          {
+            "category": "Frontend",
+            "files": [
+              {"action": "MODIFY", "file_path": "src/frontend/pages/index.astro", "instructions": ["Wire state between sidebar and viewer"]}
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [],
+          "manual_verification": ["Ask agent to create a doc, verify iframe loads it"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 7,
+          "status": "not_started",
+          "agent_assigned": "Frontend Agent",
+          "task_title": "Reactivity Wiring",
+          "task_description": "Sync tool execution results to UI state.",
+          "task_dependencies": ["Task 6"],
+          "cloudflare_docs_queries": [],
+          "steps": [
+            {
+              "number": 7.1,
+              "title": "Sync Iframe",
+              "status": "not_started",
+              "technical_requirements": ["Intercept tool execution payloads in UI"],
+              "success_criteria": ["Iframe src updates dynamically"]
+            }
+          ],
+          "requirements": ["Smooth UX without full page reloads"],
+          "success_criteria": ["End to end flow works"]
+        }
+      ]
+    },
+    {
+      "phase_number": 8,
+      "phase_title": "Documentation",
+      "description": "Finalize /docs page and README.",
+      "success_criteria": ["Docs contain all required sections"],
+      "implementation_plan": {
+        "title": "Documentation",
+        "description": "Write exhaustive system documentation.",
+        "architecture": {
+          "explanation": "",
+          "mermaid_diagram": ""
+        },
+        "proposed_changes": [
+          {
+            "category": "Docs",
+            "files": [
+              {"action": "NEW", "file_path": "src/frontend/pages/docs.astro", "instructions": ["Document DB, API, Agents"]}
+            ]
+          }
+        ],
+        "verification_plan": {
+          "automated_tests": [],
+          "manual_verification": ["Read docs page"]
+        }
+      },
+      "tasks": [
+        {
+          "task_number": 8,
+          "status": "not_started",
+          "agent_assigned": "Frontend Agent",
+          "task_title": "Docs Page",
+          "task_description": "Create the /docs interface.",
+          "task_dependencies": ["Task 7"],
+          "cloudflare_docs_queries": [],
+          "steps": [
+            {
+              "number": 8.1,
+              "title": "Render Docs",
+              "status": "not_started",
+              "technical_requirements": ["Include ER diagrams, tool descriptions"],
+              "success_criteria": ["Page loads cleanly"]
+            }
+          ],
+          "requirements": ["Must be exhaustive"],
+          "success_criteria": ["Documentation is complete"]
+        }
+      ]
+    }
+  ]
+}
