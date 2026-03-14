@@ -1,5 +1,5 @@
 {
-  "name": "core-template-cfw-assets-astro-shadcn",
+  "name": "workspace-agent",
   "main": "dist/_worker.js/index.js",
   "compatibility_date": "2026-03-09",
   "compatibility_flags": [
@@ -35,9 +35,8 @@
   	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "core-template-cfw-assets-astro-shadcn",
-			"database_id": "d126139f-6f57-49d2-bbc4-d20bbd46bbf4",
-			"preview_database_id": "d126139f-6f57-49d2-bbc4-d20bbd46bbf4",
+			"database_name": "workspace-agent",
+			"database_id": "9331eec5-cae1-4e4c-9462-1cb98ed47fce",
 			"migrations_dir": "drizzle"
 		}
   	], 
@@ -116,6 +115,16 @@
 			"binding": "OPENAI_API_KEY",
 			"store_id": "8c42fa70938644e0a8a109744467375f",
 			"secret_name": "OPENAI_API_KEY"
+		},
+		{
+			"binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1",
+			"store_id": "8c42fa70938644e0a8a109744467375f",
+			"secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1"
+		},
+		{
+			"binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2",
+			"store_id": "8c42fa70938644e0a8a109744467375f",
+			"secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2"
 		}
 	]
 }
