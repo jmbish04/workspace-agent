@@ -1,0 +1,16 @@
+---
+import SettingsScreen from '../components/SettingsScreen';
+
+// Protected page: Ensure Cloudflare Access headers/JWT validation happens at the edge
+---
+
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings - System Configuration</title>
+  </head>
+  <body class="bg-zinc-950 text-zinc-50 m-0 font-sans">
+    <SettingsScreen client:load />
+  </body>
+</html>

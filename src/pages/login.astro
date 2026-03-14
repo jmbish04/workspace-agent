@@ -1,0 +1,22 @@
+---
+import LoginScreen from '../components/LoginScreen';
+
+// In Antigravity/Cloudflare Pages, these would be in your environment variables
+const ACCESS_APP_DOMAIN = import.meta.env.ACCESS_APP_DOMAIN || 'my-astro-frontend.yourdomain.com';
+const POST_LOGIN_REDIRECT = `https://${ACCESS_APP_DOMAIN}/dashboard`;
+---
+
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - System Access</title>
+  </head>
+  <body class="bg-zinc-950 text-zinc-50">
+    <LoginScreen
+      client:load
+      accessAppDomain={ACCESS_APP_DOMAIN}
+      redirectUrl={POST_LOGIN_REDIRECT}
+    />
+  </body>
+</html>

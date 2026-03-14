@@ -1,12 +1,12 @@
 ---
-import WorkspaceLayout from "@/components/WorkspaceLayout";
+import HealthDashboard from "@/components/HealthDashboard";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { siteConfig } from "@/lib/config";
 ---
 
 <BaseLayout
-  title={`Workspace - ${siteConfig.name}`}
+  title={`Health Dashboard - ${siteConfig.name}`}
   description={siteConfig.description}
 >
-  <WorkspaceLayout client:load />
+  <HealthDashboard client:load />
 </BaseLayout>
