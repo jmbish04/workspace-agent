@@ -11,7 +11,9 @@ import { WorkspaceAgent } from './ai/agents';
 const app = new OpenAPIHono<{ Bindings: Env }>();
 
 // Enable CORS
-app.use('/*', cors());
+app.use('/api/*', cors({
+  origin: [c.env.APP_URL, 'http://localhost:4321'] // Restrict to frontend URL and local dev
+}));
 
 // Root route
 app.get('/', (c) => {
