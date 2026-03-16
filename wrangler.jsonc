@@ -1,7 +1,7 @@
 {
   "name": "workspace-agent",
   "main": "dist/_worker.js/index.js",
-  "compatibility_date": "2026-03-09",
+  "compatibility_date": "2026-03-13",
   "compatibility_flags": [
     "nodejs_compat"
   ],

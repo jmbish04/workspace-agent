@@ -6,7 +6,11 @@
       "@cloudflare/workers-types"
     ],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@frontend/*": ["src/frontend/*"],
+      "@backend/*": ["src/backend/*"],
+      "@components/*": ["src/components/*"],
+      "@lib/*": ["src/lib/*"]
     }
   },
   "include": [
