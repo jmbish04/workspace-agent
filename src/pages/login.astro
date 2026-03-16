@@ -1,8 +1,10 @@
 ---
 import LoginScreen from '../components/LoginScreen';
 
-
 const ACCESS_APP_DOMAIN = import.meta.env.ACCESS_APP_DOMAIN;
+if (!ACCESS_APP_DOMAIN) {
+  throw new Error('Critical Environment Variable Missing: ACCESS_APP_DOMAIN must be set.');
+}
 const POST_LOGIN_REDIRECT = `https://${ACCESS_APP_DOMAIN}/dashboard`;
 ---
 
