@@ -1,8 +1,10 @@
 import { AIChatAgent } from '@cloudflare/ai-chat';
+import { drizzle } from 'drizzle-orm/d1';
 import { createGoogleDocTool } from '../tools/googleDocs';
 import { createGoogleSheetTool, readGoogleSheetTool } from '../tools/googleSheets';
 import { draftGmailTool } from '../tools/gmail';
 import { createAppsScriptTool } from '../tools/appsScript';
+import { transcripts, messages } from '../../db/schemas';
 
 /**
  * WorkspaceAgent - AI Agent for Google Workspace orchestration
@@ -59,40 +61,37 @@ Think step-by-step before executing destructive actions.`);
    */
   protected async afterChatMessage(message: { role: string; content: string; tool_calls?: any }) {
     try {
+      // Initialize Drizzle client
+      const db = drizzle(this.env.DB);
+
       // Get the current transcript ID from state
-      const transcriptId = await this.getState('transcriptId');
+      let transcriptId = await this.getState('transcriptId');
 
       if (!transcriptId) {
         // Create a new transcript if it doesn't exist
         const newTranscriptId = crypto.randomUUID();
         await this.setState('transcriptId', newTranscriptId);
+        transcriptId = newTranscriptId;
 
-        // Insert transcript into D1
-        await this.env.DB.prepare(
-          'INSERT INTO transcripts (id, title, created_at, updated_at) VALUES (?, ?, ?, ?)'
-        )
-          .bind(
-            newTranscriptId,
-            'New Conversation',
-            Date.now(),
-            Date.now()
-          )
-          .run();
+        // Insert transcript into D1 using Drizzle ORM
+        const now = new Date();
+        await db.insert(transcripts).values({
+          id: newTranscriptId,
+          title: 'New Conversation',
+          createdAt: now,
+          updatedAt: now,
+        });
       }
 
-      // Insert message into D1
-      await this.env.DB.prepare(
-        'INSERT INTO messages (id, transcript_id, role, content, tool_calls, created_at) VALUES (?, ?, ?, ?, ?, ?)'
-      )
-        .bind(
-          crypto.randomUUID(),
-          transcriptId || await this.getState('transcriptId'),
-          message.role,
-          message.content,
-          message.tool_calls ? JSON.stringify(message.tool_calls) : null,
-          Date.now()
-        )
-        .run();
+      // Insert message into D1 using Drizzle ORM
+      await db.insert(messages).values({
+        id: crypto.randomUUID(),
+        transcriptId: transcriptId,
+        role: message.role as 'user' | 'assistant' | 'system',
+        content: message.content,
+        toolCalls: message.tool_calls ? JSON.stringify(message.tool_calls) : null,
+        createdAt: new Date(),
+      });
     } catch (error) {
       console.error('Failed to sync transcript to D1:', error);
       // Don't throw - we don't want to break the chat flow

@@ -12,7 +12,11 @@ const app = new OpenAPIHono<{ Bindings: Env }>();
 
 // Enable CORS
 app.use('/api/*', cors({
-  origin: [c.env.APP_URL, 'http://localhost:4321'] // Restrict to frontend URL and local dev
+  origin: (origin) => {
+    // Allow localhost and the configured APP_URL
+    return origin === 'http://localhost:4321' || origin?.includes('hacolby.workers.dev') || false;
+  },
+  credentials: true,
 }));
 
 // Root route
@@ -50,7 +54,7 @@ app.get('/api/agents/workspace/:sessionId', async (c) => {
 });
 
 // OpenAPI documentation configuration
-app.doc('/openapi.json', {
+app.doc('/openapi.json', (c) => ({
   openapi: '3.1.0',
   info: {
     title: 'Workspace Agent API',
@@ -63,7 +67,7 @@ app.doc('/openapi.json', {
       description: 'Production server',
     },
   ],
-});
+}));
 
 // Swagger UI
 app.get('/swagger', swaggerUI({ url: '/openapi.json' }));
