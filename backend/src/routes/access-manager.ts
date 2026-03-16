@@ -9,6 +9,10 @@ interface Env {
 const app = new Hono<{ Bindings: Env }>();
 const CLOUDFLARE_API_BASE = 'https://api.cloudflare.com/client/v4';
 
+const ALLOWED_EMAIL_DOMAIN = '126colby.com';
+const ALLOWED_GITHUB_USER = 'jmbish04';
+
+
 async function cloudflareApiRequest(env: Env, method: string, path: string, body?: any) {
   const response = await fetch(`${CLOUDFLARE_API_BASE}${path}`, {
     method,
@@ -36,8 +40,8 @@ app.post('/access/policies/strict-auth/:appId', async (c) => {
       name: "Strict Identity Policy",
       decision: "allow",
       include: [
-        { email_domain: { domain: "126colby.com" } },
-        { github: { name: "jmbish04" } }
+        { email_domain: { domain: ALLOWED_EMAIL_DOMAIN } },
+        { github: { name: ALLOWED_GITHUB_USER } }
       ]
     };
 
@@ -49,8 +53,9 @@ app.post('/access/policies/strict-auth/:appId', async (c) => {
     );
 
     return c.json({ success: true, data }, 201);
-  } catch (error: any) {
-    return c.json({ error: error.message }, 500);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return c.json({ error: message }, 500);
   }
 });
 

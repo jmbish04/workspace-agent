@@ -27,7 +27,6 @@ import {
   LogOut,
   Bell,
   Sun,
-  Menu,
   MessageSquare,
   LayoutDashboard
 } from "lucide-react"
@@ -40,13 +39,11 @@ function useMediaQuery(query: string): boolean {
 
   React.useEffect(() => {
     const media = window.matchMedia(query)
-    if (media.matches !== matches) {
-      setMatches(media.matches)
-    }
     const listener = () => setMatches(media.matches)
-    window.addEventListener("resize", listener)
-    return () => window.removeEventListener("resize", listener)
-  }, [matches, query])
+    listener() // Check on mount
+    media.addEventListener("change", listener)
+    return () => media.removeEventListener("change", listener)
+  }, [query])
 
   return matches
 }

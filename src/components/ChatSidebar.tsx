@@ -23,8 +23,6 @@ import {
   History,
   PlusCircle,
   MessageSquare,
-  PanelLeftClose,
-  PanelLeftOpen
 } from "lucide-react"
 
 /**

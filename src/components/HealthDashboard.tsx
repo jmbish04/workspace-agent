@@ -128,8 +128,8 @@ export default function HealthDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentEvents.map((event, idx) => (
-                <TableRow key={idx}>
+              {recentEvents.map((event) => (
+                <TableRow key={`${event.component}-${event.time}`}>
                   <TableCell className="font-medium">{event.event}</TableCell>
                   <TableCell>
                     <Badge variant={event.status === "Healthy" ? "default" : "secondary"}>
