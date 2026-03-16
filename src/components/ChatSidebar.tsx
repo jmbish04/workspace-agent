@@ -1,9 +1,9 @@
 import * as React from "react"
-// import {
-//   Thread,
-//   ThreadList,
-//   useEdgeRuntime
-// } from "@assistant-ui/react"
+
+
+
+
+
 import {
   Sheet,
   SheetContent,
@@ -33,10 +33,10 @@ import {
  * Uses a Sheet for a collapsible ThreadList (History).
  */
 export default function ChatSidebar() {
-  // Assuming useEdgeRuntime is the configured runtime hook
-  // const runtime = useEdgeRuntime({
-  //   api: "/api/chat",
-  // })
+
+
+
+
 
   return (
     <div className="flex flex-col h-full w-full bg-card border-r overflow-hidden">

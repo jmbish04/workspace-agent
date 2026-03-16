@@ -31,7 +31,7 @@ type FileContent = {
   code: string;
 };
 
-// Explicitly empty workspace state for initialization
+
 const fileContents: Record<string, FileContent> = {};
 
 export default function EmptyExplorer() {
