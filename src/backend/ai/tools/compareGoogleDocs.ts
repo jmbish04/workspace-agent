@@ -14,7 +14,7 @@ export const compareDocsSchema = z.object({
     .describe("Array of document objects to compare"),
 });
 
-export function generateDocComparisonMock(documentTitle: string, targetDocs: any[]) {
+export function generateDocComparisonMock(documentTitle: string, targetDocs: z.infer<typeof compareDocsSchema>["targetDocs"]) {
   const payload = {
     metadata: {} as Record<string, any>,
     document_content: {} as Record<string, string[]>,
