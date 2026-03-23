@@ -55,6 +55,8 @@ Think step-by-step before executing destructive actions.`);
       readGoogleSheetTool(this.env),
       draftGmailTool(this.env),
       createAppsScriptTool(this.env),
+      createDocFromMarkdownTool(this.env),
+      formatMarkdownInDocTool(this.env),
       compareGoogleDocsTool(this.env),
     ]);
   }

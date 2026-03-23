@@ -3,6 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 
 import { WorkspaceAgent } from "./ai/agents";
+import { createDocFromMarkdownSchema, formatMarkdownInDocSchema, createDocFromMarkdown, formatMarkdownInDoc } from './ai/tools/markdownToDoc';
 import { compareDocsSchema, generateDocComparison } from "./ai/tools/compareGoogleDocs";
 
 /**
@@ -42,6 +43,46 @@ app.get("/health", (c) => {
 });
 
 // Compare Google Docs API endpoint
+
+// Create Google Doc from Markdown API endpoint
+app.post('/api/tools/create-doc-from-markdown', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { title, markdownContent } = createDocFromMarkdownSchema.parse(body);
+
+    const result = await createDocFromMarkdown(c.env, title, markdownContent);
+    return c.json({
+      success: true,
+      message: `Successfully created formatted Google Doc "${title}".`,
+      data: result
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, 400);
+  }
+});
+
+// Format Markdown inside existing Google Doc API endpoint
+app.post('/api/tools/format-markdown-in-doc', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { documentUrl } = formatMarkdownInDocSchema.parse(body);
+
+    const result = await formatMarkdownInDoc(c.env, documentUrl);
+    return c.json({
+      success: true,
+      message: `Successfully formatted markdown inside the Google Doc.`,
+      data: result
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, 400);
+  }
+});
 app.post("/api/tools/compare-docs", async (c) => {
   try {
     const body = await c.req.json();
