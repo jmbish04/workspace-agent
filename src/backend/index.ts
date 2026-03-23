@@ -3,7 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 
 import { WorkspaceAgent } from "./ai/agents";
-import { compareDocsSchema, generateDocComparisonMock } from "./ai/tools/compareGoogleDocs";
+import { compareDocsSchema, generateDocComparison } from "./ai/tools/compareGoogleDocs";
 
 /**
  * Main Hono application with OpenAPI support
@@ -47,7 +47,7 @@ app.post("/api/tools/compare-docs", async (c) => {
     const body = await c.req.json();
     const { documentTitle, targetDocs } = compareDocsSchema.parse(body);
 
-    const jsonOutput = generateDocComparisonMock(documentTitle, targetDocs);
+    const jsonOutput = await generateDocComparison(c.env, documentTitle, targetDocs);
     return c.json({
       success: true,
       message: `Successfully compared ${targetDocs.length} documents for "${documentTitle}".`,

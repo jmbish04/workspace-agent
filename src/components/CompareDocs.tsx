@@ -63,7 +63,7 @@ export function CompareDocs() {
         }),
       });
 
-      const data: { success: boolean; data?: string; error?: string; message?: string } = await response.json();
+      const data: any = await response.json();
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || "Failed to compare documents");
