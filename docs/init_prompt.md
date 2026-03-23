@@ -15,7 +15,7 @@ The SWARM is now activating to generate your execution-ready artifacts.
 
 # PRD.md
 
-````markdown
+```markdown
 # Workspace Agent — Product Requirements Document
 
 ## 1. Executive Summary
