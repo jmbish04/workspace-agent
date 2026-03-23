@@ -4,7 +4,7 @@ I have received your idea for the **Workspace Agent**. This is a powerful concep
 **NotebookLM Consultation & Strategy**
 Before generating the execution plan, I have consulted the Cloudflare NotebookLM documentation sources to verify the required patterns:
 
-1. **Cloudflare Agents SDK & `assistant-ui**`: Verified the `AIChatAgent` implementation, WebSocket routing, and `@cloudflare/ai-chat/react` hooks. We will use the Agent's internal SQLite for operational state and mirror transcripts to D1 for global dashboard querying.
+1. **Cloudflare Agents SDK & `assistant-ui**`: Verified the `AIChatAgent`implementation, WebSocket routing, and`@cloudflare/ai-chat/react` hooks. We will use the Agent's internal SQLite for operational state and mirror transcripts to D1 for global dashboard querying.
 2. **AI Gateway Bindings**: Verified the `${await env.AI.gateway('workspace-agent').getUrl('compat')}/chat/completions` Universal/Compat endpoint patterns. We will configure the OpenAI compatibility layer so the agent can flexibly route to OpenAI, Anthropic, Gemini, or `workers-ai` models using standard OpenAI SDK shapes.
 3. **Hono + Zod OpenAPI**: Verified `OpenAPIHono` setup for v3.1.0, ensuring every route has an `operationId` and the `servers` array points to `https://workspace-agent.hacolby.workers.dev`.
 4. **Worker Assets & Astro**: Verified the hybrid SSR/Static setup for serving the split-pane Astro/React frontend and the Hono backend from the same Worker.
@@ -15,50 +15,53 @@ The SWARM is now activating to generate your execution-ready artifacts.
 
 # PRD.md
 
-```markdown
+````markdown
 # Workspace Agent — Product Requirements Document
 
 ## 1. Executive Summary
-Workspace Agent is an advanced, edge-native AI assistant designed to automate and orchestrate Google Workspace operations (Docs, Sheets, Gmail, and Apps Script). Running entirely on Cloudflare Workers, the application features a unified split-pane interface: an intelligent `assistant-ui` chat sidebar on the left, and a real-time embedded iframe/canvas on the right to preview the Google documents and scripts the agent is actively modifying. 
+
+Workspace Agent is an advanced, edge-native AI assistant designed to automate and orchestrate Google Workspace operations (Docs, Sheets, Gmail, and Apps Script). Running entirely on Cloudflare Workers, the application features a unified split-pane interface: an intelligent `assistant-ui` chat sidebar on the left, and a real-time embedded iframe/canvas on the right to preview the Google documents and scripts the agent is actively modifying.
 
 By leveraging the Cloudflare Agents SDK, D1 for persistent transcript storage, and AI Gateway for universal LLM routing, this tool provides a highly responsive, robust environment for developers and power users to generate content, analyze data, and build Apps Script extensions conversationally.
 
 ## 2. Target Users & Use Cases
+
 - **Developers & Power Users**: Instantly generate and inject Google Apps Script into standalone projects or as document-bound scripts.
 - **Data Analysts**: Converse with the agent to format, analyze, and chart data in Google Sheets, watching the sheet update in real-time.
 - **Content Creators**: Dictate and refine Google Docs or draft complex Gmail responses using context-aware AI.
 - **Managers**: Review AI-generated artifacts side-by-side with the chat context before finalizing.
 
 ## 3. System Architecture Overview
+
 ```mermaid
 graph TD
     Client[Browser: Astro + React] -->|HTTPS / Assets| Worker[Cloudflare Worker]
     Client -->|WebSocket| ChatAgent[Durable Object: WorkspaceAgent]
     Client -->|HTTPS| API[Hono REST + OpenAPI]
-    
+
     Worker --> API
     API --> D1[(D1 Database)]
-    
+
     ChatAgent -->|Internal SQLite| DO_DB[(DO SQLite)]
     ChatAgent -->|Syncs Transcripts| D1
     ChatAgent --> AIG[Cloudflare AI Gateway]
     ChatAgent --> Google[Google Workspace APIs]
-    
+
     AIG -->|Universal Endpoint| LLMs(OpenAI / Anthropic / Gemini / Workers AI)
     Google -->|Iframe src update| Client
-
 ```
+````
 
 ## 4. Cloudflare Services Used
 
-| Service | Purpose | Binding Name |
-| --- | --- | --- |
-| **Worker Assets** | Serves the Astro + shadcn/ui frontend | `ASSETS` |
-| **Durable Objects** | Hosts the `WorkspaceAgent` state and WebSocket connections | `WORKSPACE_AGENT` |
-| **D1** | Global storage for chat transcripts, user settings, and health logs | `DB` |
-| **AI Gateway** | Universal proxy for routing LLM requests via OpenAI compat API | *Configured via env.AI* |
-| **Workers AI** | Fallback/local inference provider | `AI` |
-| **Secrets Store** | Securely holds Google OAuth credentials and LLM keys | Various |
+| Service             | Purpose                                                             | Binding Name            |
+| ------------------- | ------------------------------------------------------------------- | ----------------------- |
+| **Worker Assets**   | Serves the Astro + shadcn/ui frontend                               | `ASSETS`                |
+| **Durable Objects** | Hosts the `WorkspaceAgent` state and WebSocket connections          | `WORKSPACE_AGENT`       |
+| **D1**              | Global storage for chat transcripts, user settings, and health logs | `DB`                    |
+| **AI Gateway**      | Universal proxy for routing LLM requests via OpenAI compat API      | _Configured via env.AI_ |
+| **Workers AI**      | Fallback/local inference provider                                   | `AI`                    |
+| **Secrets Store**   | Securely holds Google OAuth credentials and LLM keys                | Various                 |
 
 ## 5. Wrangler Configuration Blueprint
 
@@ -67,152 +70,148 @@ graph TD
   "name": "workspace-agent",
   "main": "dist/_worker.js/index.js",
   "compatibility_date": "2026-03-09",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "upload_source_maps": true,
-	"workers_dev": true,
-	"preview_urls": true,
-	"observability": {
-		"enabled": true,
-		"head_sampling_rate": 1,
-		"logs": {
-			"enabled": true,
-			"head_sampling_rate": 1,
-			"persist": true,
-			"invocation_logs": true
-		},
-		"traces": {
-			"enabled": false,
-			"persist": true,
-			"head_sampling_rate": 1
-		}
-	},  
-	"assets": {
-		"binding": "ASSETS",		
-		"directory": "./dist",
-		"run_worker_first": true,
-		"not_found_handling": "none"
-	},
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1,
+    },
+  },
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+    "run_worker_first": true,
+    "not_found_handling": "none",
+  },
   "durable_objects": {
     "bindings": [
       {
         "name": "WORKSPACE_AGENT",
-        "class_name": "WorkspaceAgent"
-      }
-    ]
+        "class_name": "WorkspaceAgent",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["WorkspaceAgent"]
-    }
+      "new_sqlite_classes": ["WorkspaceAgent"],
+    },
   ],
   "ai": {
-    "binding": "AI"
+    "binding": "AI",
   },
   "vars": {
     "AI_GATEWAY_NAME": "workspace-agent",
-    "APP_URL": "https://workspace-agent.hacolby.workers.dev"
+    "APP_URL": "https://workspace-agent.hacolby.workers.dev",
   },
-  	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "workspace-agent",
-			"database_id": "9331eec5-cae1-4e4c-9462-1cb98ed47fce",
-			"migrations_dir": "drizzle"
-		}
-  	], 
-	"secrets_store_secrets": [
-		{
-			"binding": "GITHUB_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "GH_TOKEN"
-		},
-		{
-			"binding": "CLOUDFLARE_ACCOUNT_ID",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_ACCOUNT_ID"
-		},
-		{
-			"binding": "CLOUDFLARE_API_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_API_TOKEN"
-		},    
-		{
-			"binding": "CLOUDFLARE_SECRETS_STORE_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_SECRETS_STORE_TOKEN"
-		},
-		{
-			"binding": "CLOUDFLARE_WORKER_ADMIN_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_WORKER_ADMIN_TOKEN"
-		},
-		{
-			"binding": "CLOUDFLARE_AI_SEARCH_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_AI_SEARCH_TOKEN"
-		},				
-		{
-			"binding": "CLOUDFLARE_OBSERVABILITY_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_OBSERVABILITY_TOKEN"
-		},		
-		{
-			"binding": "WORKER_API_KEY",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "WORKER_API_KEY"
-		},
-		{
-			"binding": "AGENTIC_WORKER_API_KEY",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "AGENTIC_WORKER_API_KEY"
-		},		
-		{
-			"binding": "AI_GATEWAY_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_AI_GATEWAY_TOKEN"
-		},
-		{
-			"binding": "CF_BROWSER_RENDER_TOKEN",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "CLOUDFLARE_BROWSER_RENDER_TOKEN"
-		},
-		{
-			"binding": "JULES_API_KEY",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "JULES_API_KEY"
-		},
-		{
-			"binding": "GEMINI_API_KEY",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "GOOGLE_API_KEY"
-		},
-		{
-			"binding": "ANTHROPIC_API_KEY",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "ANTHROPIC_API_KEY"
-		},
-		{
-			"binding": "OPENAI_API_KEY",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "OPENAI_API_KEY"
-		},
-		{
-			"binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1"
-		},
-		{
-			"binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2",
-			"store_id": "8c42fa70938644e0a8a109744467375f",
-			"secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2"
-		}
-	]
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "workspace-agent",
+      "database_id": "9331eec5-cae1-4e4c-9462-1cb98ed47fce",
+      "migrations_dir": "drizzle",
+    },
+  ],
+  "secrets_store_secrets": [
+    {
+      "binding": "GITHUB_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "GH_TOKEN",
+    },
+    {
+      "binding": "CLOUDFLARE_ACCOUNT_ID",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_ACCOUNT_ID",
+    },
+    {
+      "binding": "CLOUDFLARE_API_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_API_TOKEN",
+    },
+    {
+      "binding": "CLOUDFLARE_SECRETS_STORE_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_SECRETS_STORE_TOKEN",
+    },
+    {
+      "binding": "CLOUDFLARE_WORKER_ADMIN_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_WORKER_ADMIN_TOKEN",
+    },
+    {
+      "binding": "CLOUDFLARE_AI_SEARCH_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_AI_SEARCH_TOKEN",
+    },
+    {
+      "binding": "CLOUDFLARE_OBSERVABILITY_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_OBSERVABILITY_TOKEN",
+    },
+    {
+      "binding": "WORKER_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "WORKER_API_KEY",
+    },
+    {
+      "binding": "AGENTIC_WORKER_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "AGENTIC_WORKER_API_KEY",
+    },
+    {
+      "binding": "AI_GATEWAY_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_AI_GATEWAY_TOKEN",
+    },
+    {
+      "binding": "CF_BROWSER_RENDER_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_BROWSER_RENDER_TOKEN",
+    },
+    {
+      "binding": "JULES_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "JULES_API_KEY",
+    },
+    {
+      "binding": "GEMINI_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "GOOGLE_API_KEY",
+    },
+    {
+      "binding": "ANTHROPIC_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "ANTHROPIC_API_KEY",
+    },
+    {
+      "binding": "OPENAI_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "OPENAI_API_KEY",
+    },
+    {
+      "binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1",
+    },
+    {
+      "binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2",
+    },
+  ],
 }
-
-
 ```
 
 ## 6. Database Design
@@ -248,8 +247,8 @@ erDiagram
 
 ### 6.2 Common Queries
 
-* **Transcript History**: `SELECT * FROM transcripts ORDER BY updated_at DESC LIMIT 50;` (Used by the dashboard to show past sessions).
-* **Log Monitor**: `SELECT * FROM logs WHERE level = 'error' ORDER BY timestamp DESC;` (Health dashboard check).
+- **Transcript History**: `SELECT * FROM transcripts ORDER BY updated_at DESC LIMIT 50;` (Used by the dashboard to show past sessions).
+- **Log Monitor**: `SELECT * FROM logs WHERE level = 'error' ORDER BY timestamp DESC;` (Health dashboard check).
 
 ## 7. API Design
 
@@ -257,44 +256,37 @@ All REST APIs are strictly typed using Hono `@hono/zod-openapi` to automatically
 
 ### 7.1 REST API Endpoints
 
-* **`GET /api/health/latest`** (`operationId: getLatestHealth`)
-* Fetches the most recent system health scan from D1.
+- **`GET /api/health/latest`** (`operationId: getLatestHealth`)
+- Fetches the most recent system health scan from D1.
 
+- **`POST /api/health/scan`** (`operationId: runHealthScan`)
+- Triggers an on-demand health scan.
 
-* **`POST /api/health/scan`** (`operationId: runHealthScan`)
-* Triggers an on-demand health scan.
+- **`GET /api/transcripts`** (`operationId: listTranscripts`)
+- Retrieves a paginated list of chat transcripts from D1.
 
-
-* **`GET /api/transcripts`** (`operationId: listTranscripts`)
-* Retrieves a paginated list of chat transcripts from D1.
-
-
-* **`GET /openapi.json`** - Auto-generated OpenAPI v3.1.0 specification. `servers` array points to `https://workspace-agent.hacolby.workers.dev`.
-* **`GET /swagger`**
-* Interactive Swagger UI.
-
-
+- **`GET /openapi.json`** - Auto-generated OpenAPI v3.1.0 specification. `servers` array points to `https://workspace-agent.hacolby.workers.dev`.
+- **`GET /swagger`**
+- Interactive Swagger UI.
 
 ### 7.2 WebSocket API
 
-* **`/api/agents/workspace/:sessionId`**
-* WebSocket upgrade endpoint mapped directly to the `WorkspaceAgent` Durable Object. Facilitates `assistant-ui` real-time streaming and tool execution.
-
-
+- **`/api/agents/workspace/:sessionId`**
+- WebSocket upgrade endpoint mapped directly to the `WorkspaceAgent` Durable Object. Facilitates `assistant-ui` real-time streaming and tool execution.
 
 ## 8. AI & Agents
 
 ### 8.1 Agent Inventory
 
-* **`WorkspaceAgent` (extends `AIChatAgent`)**: Manages the conversational state. Intercepts tool calls to update the right-hand iframe state on the frontend (e.g., setting the active Google Doc ID for the iframe viewer). Mirrors finalized messages to D1 `transcripts` and `messages` tables.
+- **`WorkspaceAgent` (extends `AIChatAgent`)**: Manages the conversational state. Intercepts tool calls to update the right-hand iframe state on the frontend (e.g., setting the active Google Doc ID for the iframe viewer). Mirrors finalized messages to D1 `transcripts` and `messages` tables.
 
 ### 8.2 Agent Prompt
 
 ```text
 You are the Workspace Agent, an expert Cloudflare and Google Workspace orchestration AI.
 You have direct integration with Google Docs, Sheets, Gmail, and Apps Script.
-When the user asks to create or modify a document, use the appropriate tool. 
-When writing Apps Script, ensure it utilizes modern V8 runtime features and ES6+ syntax. 
+When the user asks to create or modify a document, use the appropriate tool.
+When writing Apps Script, ensure it utilizes modern V8 runtime features and ES6+ syntax.
 Always inform the user when a document has been updated so they can review it in the adjacent viewer pane.
 Think step-by-step before executing destructive actions.
 
@@ -302,13 +294,13 @@ Think step-by-step before executing destructive actions.
 
 ### 8.3 Tools
 
-* `createGoogleDoc(title, content)`: Creates a new doc, returns Document ID.
-* `updateGoogleDoc(documentId, content, mode)`: Appends or replaces content.
-* `readGoogleSheet(spreadsheetId, range)`: Extracts structured data from Sheets.
-* `writeGoogleSheet(spreadsheetId, range, values)`: Writes 2D arrays to Sheets.
-* `draftGmail(to, subject, body)`: Creates a draft email in the user's Gmail.
-* `createAppsScriptProject(title, scriptContent)`: Creates a standalone Apps Script project.
-* `bindAppsScript(documentId, scriptContent)`: Attaches a script to an existing Doc/Sheet.
+- `createGoogleDoc(title, content)`: Creates a new doc, returns Document ID.
+- `updateGoogleDoc(documentId, content, mode)`: Appends or replaces content.
+- `readGoogleSheet(spreadsheetId, range)`: Extracts structured data from Sheets.
+- `writeGoogleSheet(spreadsheetId, range, values)`: Writes 2D arrays to Sheets.
+- `draftGmail(to, subject, body)`: Creates a draft email in the user's Gmail.
+- `createAppsScriptProject(title, scriptContent)`: Creates a standalone Apps Script project.
+- `bindAppsScript(documentId, scriptContent)`: Attaches a script to an existing Doc/Sheet.
 
 ### 8.4 AI Gateway Configuration
 
@@ -331,30 +323,28 @@ const gatewayBaseUrl = `${await env.AI.gateway('workspace-agent').getUrl('compat
 
 This is the primary application interface, adopting a split-pane layout:
 
-* **Header Navigation**: Logo, theme indicator, and links to Docs, Health, OpenAPI, and Swagger.
-* **Left Pane (35% width)**: `assistant-ui` Chat interface. Features `<ThreadList>` for past sessions (pulled from D1) and `<Thread>` for the active session.
-* **Right Pane (65% width)**: Dynamic Document Viewer. A React Island that listens for active Document IDs from the chat agent's tool results and renders either:
-* `<canvas>` for custom data visualization.
-* `<iframe src="https://docs.google.com/document/d/{docId}/edit?embedded=true">`
-* `<iframe src="https://docs.google.com/spreadsheets/d/{sheetId}/edit?embedded=true">`
-
-
+- **Header Navigation**: Logo, theme indicator, and links to Docs, Health, OpenAPI, and Swagger.
+- **Left Pane (35% width)**: `assistant-ui` Chat interface. Features `<ThreadList>` for past sessions (pulled from D1) and `<Thread>` for the active session.
+- **Right Pane (65% width)**: Dynamic Document Viewer. A React Island that listens for active Document IDs from the chat agent's tool results and renders either:
+- `<canvas>` for custom data visualization.
+- `<iframe src="https://docs.google.com/document/d/{docId}/edit?embedded=true">`
+- `<iframe src="https://docs.google.com/spreadsheets/d/{sheetId}/edit?embedded=true">`
 
 #### 9.1.2 Documentation Page (`/docs`)
 
 Exhaustive reference:
 
-* **DB Schema**: Visual ER diagram and lists of common D1 queries.
-* **API Reference**: Detailed breakdown of Hono routes with Zod schemas.
-* **Agent capabilities**: Lists all Google Workspace tools and how the agent uses them.
+- **DB Schema**: Visual ER diagram and lists of common D1 queries.
+- **API Reference**: Detailed breakdown of Hono routes with Zod schemas.
+- **Agent capabilities**: Lists all Google Workspace tools and how the agent uses them.
 
 #### 9.1.3 Health Dashboard (`/health`)
 
 Interactive systems monitor:
 
-* On load: Fetch `/api/health/latest`.
-* Manual trigger: "Run Health Scan" button updates UI in real-time.
-* Card grid showing status for: D1 Database, Agent DO, AI Gateway, Google Auth.
+- On load: Fetch `/api/health/latest`.
+- Manual trigger: "Run Health Scan" button updates UI in real-time.
+- Card grid showing status for: D1 Database, Agent DO, AI Gateway, Google Auth.
 
 ### 9.2 Component Library
 
@@ -374,10 +364,10 @@ Links: `[ Workspace | Docs | Health | OpenAPI JSON | Swagger UI ]`
 
 ## 10. Security & Integration
 
-* **Google OAuth/Service Account**: Stored in Cloudflare Secrets Store (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`).
-* **Agent Sandbox**: The agent only has access to files it creates or files explicitly shared with its service account email.
+- **Google OAuth/Service Account**: Stored in Cloudflare Secrets Store (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`).
+- **Agent Sandbox**: The agent only has access to files it creates or files explicitly shared with its service account email.
 
-```
+````
 
 ***
 
@@ -801,7 +791,7 @@ Links: `[ Workspace | Docs | Health | OpenAPI JSON | Swagger UI ]`
   ]
 }
 
-```
+````
 
 ---
 
@@ -813,28 +803,34 @@ Links: `[ Workspace | Docs | Health | OpenAPI JSON | Swagger UI ]`
 ## MANDATORY STANDARDS — READ BEFORE ANY WORK
 
 ### 1. Type Safety & Env Management
+
 - ALWAYS run `pnpm run types` (`npx wrangler types`) after ANY change to `wrangler.jsonc`.
 - The generated `worker-configuration.d.ts` is the SINGLE SOURCE OF TRUTH for the `Env` type.
-- NEVER redefine or manually type `Env`. 
+- NEVER redefine or manually type `Env`.
 
 ### 2. Import Paths
+
 - EVERY module import MUST use TypeScript path aliases defined in `tsconfig.json` (`@frontend/*`, `@backend/*`, etc.).
 
 ### 3. Secrets Management & Google Auth
+
 - The Google Workspace integrations require `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and a `GOOGLE_REFRESH_TOKEN` (or service account JSON).
 - ALWAYS use Secrets Store bindings in `wrangler.jsonc` for these. Never hardcode them.
 
 ### 4. Database
+
 - Use Drizzle ORM with D1.
 - Run `pnpm run db:generate` after modifying schemas in `src/backend/db/schemas/`.
 
 ### 5. API Framework
+
 - Use Hono with `@hono/zod-openapi` for all REST routes.
-- **CRITICAL:** Every route MUST include an `operationId`. 
+- **CRITICAL:** Every route MUST include an `operationId`.
 - The OpenAPI configuration in `src/backend/index.ts` MUST set `servers: [{ url: 'https://workspace-agent.hacolby.workers.dev' }]`.
 - Serve `/openapi.json` and `/swagger`.
 
 ### 6. AI & Agents (WorkspaceAgent)
+
 - NEVER use Vercel AI SDK (`ai`, `useChat`). Use `@cloudflare/ai-chat` and `agents`.
 - The Agent class must extend `AIChatAgent`.
 - **AI Gateway Universal Endpoint:** To dynamically support multiple models via OpenAI compat formatting, construct the base URL using:
@@ -844,22 +840,24 @@ Links: `[ Workspace | Docs | Health | OpenAPI JSON | Swagger UI ]`
 - To fulfill the requirement of saving transcripts to D1, utilize the Agent's lifecycle hooks (e.g., `onChatMessage` or a scheduled alarm) to mirror the DO SQLite state to the D1 `transcripts` and `messages` tables.
 
 ### 7. Frontend Layout & assistant-ui
+
 - DEFAULT DARK THEME SHADCN — no exceptions. `html class="dark"`.
 - Use shadcn `Resizable` to create a split-pane layout on `pages/index.astro` (or the root React component).
 - **Left Pane:** `assistant-ui` threaded chat (`<ThreadList>` + `<Thread>`).
-- **Right Pane:** An iframe or canvas. 
+- **Right Pane:** An iframe or canvas.
 - **Reactivity:** When the Agent executes a Google tool (like `createGoogleDoc`), the React frontend must parse the tool call result from the message stream and update the right-pane iframe `src` to load that specific document/sheet embedded URL (`https://docs.google.com/document/d/.../edit?embedded=true`).
 
 ### 8. Package Manager & Wrangler
+
 - ALWAYS use `pnpm`.
 - `pnpm add -D wrangler@latest` before deploying.
 - `compatibility_date` is `2026-03-13`.
 
 ### 9. Task Management
+
 - Follow `project_tasks.json` in exact sequential order.
 - Update statuses as you progress.
 - Run the required `cloudflare_docs_queries` before starting tasks.
-
 ```
 
 ---
