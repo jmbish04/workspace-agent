@@ -1,2 +1,2 @@
-export * from './transcripts';
-export * from './logs';
+export * from "./transcripts";
+export * from "./logs";

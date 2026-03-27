@@ -1,5 +1,9 @@
 ---
-import WorkspaceLayout from "@/components/WorkspaceLayout";
+import { ComponentExample } from "@/components/ComponentExample";
+import { CompareDocs } from "@/components/CompareDocs";
+import { MarkdownTools } from "@/components/MarkdownTools";
+
+
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { siteConfig } from "@/lib/config";
 ---
@@ -8,5 +12,7 @@ import { siteConfig } from "@/lib/config";
   title={`Workspace - ${siteConfig.name}`}
   description={siteConfig.description}
 >
-  <WorkspaceLayout client:load />
+  <MarkdownTools client:load />
+  <CompareDocs client:load />
+  <ComponentExample client:load />
 </BaseLayout>

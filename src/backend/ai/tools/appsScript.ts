@@ -1,5 +1,5 @@
-import { tool } from 'ai';
-import { z } from 'zod';
+import { tool } from "ai";
+import { z } from "zod";
 
 /**
  * Create Apps Script Project Tool
@@ -7,10 +7,10 @@ import { z } from 'zod';
  */
 export const createAppsScriptTool = (env: Env) =>
   tool({
-    description: 'Create a standalone Google Apps Script project',
+    description: "Create a standalone Google Apps Script project",
     parameters: z.object({
-      title: z.string().describe('The title of the Apps Script project'),
-      scriptContent: z.string().describe('The JavaScript/Apps Script code'),
+      title: z.string().describe("The title of the Apps Script project"),
+      scriptContent: z.string().describe("The JavaScript/Apps Script code"),
     }),
     execute: async ({ title, scriptContent }) => {
       try {
@@ -27,7 +27,7 @@ export const createAppsScriptTool = (env: Env) =>
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
       }
     },
@@ -39,10 +39,10 @@ export const createAppsScriptTool = (env: Env) =>
  */
 export const bindAppsScriptTool = (env: Env) =>
   tool({
-    description: 'Bind an Apps Script to an existing Google Doc or Sheet',
+    description: "Bind an Apps Script to an existing Google Doc or Sheet",
     parameters: z.object({
-      documentId: z.string().describe('The ID of the Doc or Sheet to bind to'),
-      scriptContent: z.string().describe('The JavaScript/Apps Script code'),
+      documentId: z.string().describe("The ID of the Doc or Sheet to bind to"),
+      scriptContent: z.string().describe("The JavaScript/Apps Script code"),
     }),
     execute: async ({ documentId, scriptContent }) => {
       try {
@@ -50,12 +50,12 @@ export const bindAppsScriptTool = (env: Env) =>
         return {
           success: true,
           documentId,
-          message: 'Bound script to document successfully.',
+          message: "Bound script to document successfully.",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
       }
     },

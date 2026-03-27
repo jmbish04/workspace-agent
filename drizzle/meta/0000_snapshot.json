@@ -56,12 +56,8 @@
           "name": "messages_transcript_id_transcripts_id_fk",
           "tableFrom": "messages",
           "tableTo": "transcripts",
-          "columnsFrom": [
-            "transcript_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transcript_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

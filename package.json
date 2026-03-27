@@ -50,6 +50,7 @@
     "googleapis": "^144.0.0",
     "hono": "latest",
     "lucide-react": "^0.575.0",
+    "marked": "^17.0.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-resizable-panels": "^4.7.2",
@@ -60,6 +61,7 @@
     "zod": "latest"
   },
   "devDependencies": {
+    "@types/marked": "^6.0.0",
     "@types/node": "^24.11.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

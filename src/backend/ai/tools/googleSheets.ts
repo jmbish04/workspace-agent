@@ -1,18 +1,18 @@
-import { tool } from 'ai';
-import { z } from 'zod';
+import { tool } from "ai";
+import { z } from "zod";
 
 /**
  * Create Google Sheet Tool
  */
 export const createGoogleSheetTool = (env: Env) =>
   tool({
-    description: 'Create a new Google Sheet with specified title and initial data',
+    description: "Create a new Google Sheet with specified title and initial data",
     parameters: z.object({
-      title: z.string().describe('The title of the spreadsheet'),
+      title: z.string().describe("The title of the spreadsheet"),
       data: z
         .array(z.array(z.string()))
         .optional()
-        .describe('Initial data as a 2D array of strings'),
+        .describe("Initial data as a 2D array of strings"),
     }),
     execute: async ({ title, data }) => {
       try {
@@ -29,7 +29,7 @@ export const createGoogleSheetTool = (env: Env) =>
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
       }
     },
@@ -40,9 +40,9 @@ export const createGoogleSheetTool = (env: Env) =>
  */
 export const readGoogleSheetTool = (env: Env) =>
   tool({
-    description: 'Read data from a Google Sheet',
+    description: "Read data from a Google Sheet",
     parameters: z.object({
-      spreadsheetId: z.string().describe('The ID of the spreadsheet'),
+      spreadsheetId: z.string().describe("The ID of the spreadsheet"),
       range: z.string().describe('The A1 notation range (e.g., "Sheet1!A1:D10")'),
     }),
     execute: async ({ spreadsheetId, range }) => {
@@ -53,15 +53,15 @@ export const readGoogleSheetTool = (env: Env) =>
           spreadsheetId,
           range,
           data: [
-            ['Header 1', 'Header 2', 'Header 3'],
-            ['Value 1', 'Value 2', 'Value 3'],
+            ["Header 1", "Header 2", "Header 3"],
+            ["Value 1", "Value 2", "Value 3"],
           ],
-          message: 'Read data successfully.',
+          message: "Read data successfully.",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
       }
     },
@@ -72,11 +72,11 @@ export const readGoogleSheetTool = (env: Env) =>
  */
 export const writeGoogleSheetTool = (env: Env) =>
   tool({
-    description: 'Write data to a Google Sheet',
+    description: "Write data to a Google Sheet",
     parameters: z.object({
-      spreadsheetId: z.string().describe('The ID of the spreadsheet'),
+      spreadsheetId: z.string().describe("The ID of the spreadsheet"),
       range: z.string().describe('The A1 notation range (e.g., "Sheet1!A1:D10")'),
-      values: z.array(z.array(z.string())).describe('2D array of values to write'),
+      values: z.array(z.array(z.string())).describe("2D array of values to write"),
     }),
     execute: async ({ spreadsheetId, range, values }) => {
       try {
@@ -91,7 +91,7 @@ export const writeGoogleSheetTool = (env: Env) =>
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
       }
     },

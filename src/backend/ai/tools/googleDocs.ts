@@ -1,5 +1,5 @@
-import { tool } from 'ai';
-import { z } from 'zod';
+import { tool } from "ai";
+import { z } from "zod";
 
 /**
  * Create Google Doc Tool
@@ -7,10 +7,10 @@ import { z } from 'zod';
  */
 export const createGoogleDocTool = (env: Env) =>
   tool({
-    description: 'Create a new Google Document with the specified title and content',
+    description: "Create a new Google Document with the specified title and content",
     parameters: z.object({
-      title: z.string().describe('The title of the document'),
-      content: z.string().describe('The content to insert into the document (supports Markdown)'),
+      title: z.string().describe("The title of the document"),
+      content: z.string().describe("The content to insert into the document (supports Markdown)"),
     }),
     execute: async ({ title, content }) => {
       try {
@@ -34,7 +34,7 @@ export const createGoogleDocTool = (env: Env) =>
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
       }
     },
@@ -46,11 +46,11 @@ export const createGoogleDocTool = (env: Env) =>
  */
 export const updateGoogleDocTool = (env: Env) =>
   tool({
-    description: 'Update an existing Google Document with new content',
+    description: "Update an existing Google Document with new content",
     parameters: z.object({
-      documentId: z.string().describe('The ID of the document to update'),
-      content: z.string().describe('The new content (will append or replace based on mode)'),
-      mode: z.enum(['append', 'replace']).describe('Whether to append or replace content'),
+      documentId: z.string().describe("The ID of the document to update"),
+      content: z.string().describe("The new content (will append or replace based on mode)"),
+      mode: z.enum(["append", "replace"]).describe("Whether to append or replace content"),
     }),
     execute: async ({ documentId, content, mode }) => {
       try {
@@ -64,7 +64,7 @@ export const updateGoogleDocTool = (env: Env) =>
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
       }
     },

@@ -1,7 +1,10 @@
-import { OpenAPIHono } from '@hono/zod-openapi';
-import { swaggerUI } from '@hono/swagger-ui';
-import { cors } from 'hono/cors';
-import { WorkspaceAgent } from './ai/agents';
+import { swaggerUI } from "@hono/swagger-ui";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { cors } from "hono/cors";
+
+import { WorkspaceAgent } from "./ai/agents";
+import { createDocFromMarkdownSchema, formatMarkdownInDocSchema, createDocFromMarkdown, formatMarkdownInDoc } from './ai/tools/markdownToDoc';
+import { compareDocsSchema, generateDocComparison } from "./ai/tools/compareGoogleDocs";
 
 /**
  * Main Hono application with OpenAPI support
@@ -11,38 +14,104 @@ import { WorkspaceAgent } from './ai/agents';
 const app = new OpenAPIHono<{ Bindings: Env }>();
 
 // Enable CORS
-app.use('/api/*', cors({
-  origin: (origin) => {
-    // Allow localhost and the configured APP_URL
-    return origin === 'http://localhost:4321' || origin?.includes('hacolby.workers.dev') || false;
-  },
-  credentials: true,
-}));
+app.use(
+  "/api/*",
+  cors({
+    origin: (origin) => {
+      // Allow localhost and the configured APP_URL
+      return origin === "http://localhost:4321" || origin?.includes("hacolby.workers.dev") || false;
+    },
+    credentials: true,
+  }),
+);
 
 // Root route
-app.get('/', (c) => {
+app.get("/", (c) => {
   return c.json({
-    name: 'Workspace Agent',
-    version: '1.0.0',
-    description: 'Edge-native AI assistant for Google Workspace orchestration',
+    name: "Workspace Agent",
+    version: "1.0.0",
+    description: "Edge-native AI assistant for Google Workspace orchestration",
   });
 });
 
 // Health check route
-app.get('/health', (c) => {
+app.get("/health", (c) => {
   return c.json({
-    status: 'healthy',
+    status: "healthy",
     timestamp: new Date().toISOString(),
   });
 });
 
+// Compare Google Docs API endpoint
+
+// Create Google Doc from Markdown API endpoint
+app.post('/api/tools/create-doc-from-markdown', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { title, markdownContent } = createDocFromMarkdownSchema.parse(body);
+
+    const result = await createDocFromMarkdown(c.env, title, markdownContent);
+    return c.json({
+      success: true,
+      message: `Successfully created formatted Google Doc "${title}".`,
+      data: result
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, 400);
+  }
+});
+
+// Format Markdown inside existing Google Doc API endpoint
+app.post('/api/tools/format-markdown-in-doc', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { documentUrl } = formatMarkdownInDocSchema.parse(body);
+
+    const result = await formatMarkdownInDoc(c.env, documentUrl);
+    return c.json({
+      success: true,
+      message: `Successfully formatted markdown inside the Google Doc.`,
+      data: result
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, 400);
+  }
+});
+app.post("/api/tools/compare-docs", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { documentTitle, targetDocs } = compareDocsSchema.parse(body);
+
+    const jsonOutput = await generateDocComparison(c.env, documentTitle, targetDocs);
+    return c.json({
+      success: true,
+      message: `Successfully compared ${targetDocs.length} documents for "${documentTitle}".`,
+      data: jsonOutput,
+    });
+  } catch (error) {
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      400,
+    );
+  }
+});
+
 // WebSocket upgrade endpoint for WorkspaceAgent
-app.get('/api/agents/workspace/:sessionId', async (c) => {
+app.get("/api/agents/workspace/:sessionId", async (c) => {
   const { sessionId } = c.req.param();
 
   // Check if this is a WebSocket upgrade request
-  if (c.req.header('upgrade') !== 'websocket') {
-    return c.json({ error: 'Expected WebSocket upgrade' }, 400);
+  if (c.req.header("upgrade") !== "websocket") {
+    return c.json({ error: "Expected WebSocket upgrade" }, 400);
   }
 
   // Get the Durable Object stub
@@ -54,23 +123,23 @@ app.get('/api/agents/workspace/:sessionId', async (c) => {
 });
 
 // OpenAPI documentation configuration
-app.doc('/openapi.json', (c) => ({
-  openapi: '3.1.0',
+app.doc("/openapi.json", (c) => ({
+  openapi: "3.1.0",
   info: {
-    title: 'Workspace Agent API',
-    version: '1.0.0',
-    description: 'REST API for Workspace Agent - Google Workspace orchestration platform',
+    title: "Workspace Agent API",
+    version: "1.0.0",
+    description: "REST API for Workspace Agent - Google Workspace orchestration platform",
   },
   servers: [
     {
       url: c.env.APP_URL,
-      description: 'Production server',
+      description: "Production server",
     },
   ],
 }));
 
 // Swagger UI
-app.get('/swagger', swaggerUI({ url: '/openapi.json' }));
+app.get("/swagger", swaggerUI({ url: "/openapi.json" }));
 
 /**
  * Worker fetch handler
