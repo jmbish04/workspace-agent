@@ -26,7 +26,7 @@
     "types": "wrangler types"
   },
   "dependencies": {
-    "@assistant-ui/react": "^0.12.17",
+    "@assistant-ui/react": "latest",
     "@assistant-ui/react-markdown": "latest",
     "@astrojs/cloudflare": "^12.1.0",
     "@astrojs/react": "^4.4.2",
@@ -48,7 +48,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.33.0",
     "googleapis": "^144.0.0",
-    "hono": "^4.12.7",
+    "hono": "latest",
     "lucide-react": "^0.575.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

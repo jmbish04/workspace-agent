@@ -14,7 +14,7 @@ const app = new OpenAPIHono<{ Bindings: Env }>();
 app.use('/api/*', cors({
   origin: (origin) => {
     // Allow localhost and the configured APP_URL
-    return (origin === 'http://localhost:4321' || origin?.includes('hacolby.workers.dev')) ? origin : 'http://localhost:4321';
+    return origin === 'http://localhost:4321' || origin?.includes('hacolby.workers.dev') || false;
   },
   credentials: true,
 }));
