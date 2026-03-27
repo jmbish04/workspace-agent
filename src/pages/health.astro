@@ -1,0 +1,12 @@
+---
+import HealthDashboard from "@/components/HealthDashboard";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/lib/config";
+---
+
+<BaseLayout
+  title={`Health Dashboard - ${siteConfig.name}`}
+  description={siteConfig.description}
+>
+  <HealthDashboard client:load />
+</BaseLayout>
